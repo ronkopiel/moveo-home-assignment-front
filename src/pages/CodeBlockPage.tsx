@@ -7,13 +7,16 @@ import { javascript } from "@codemirror/lang-javascript";
 import "./CodeBlockPage.css";
 import { CodeBlock } from "./Lobby";
 
-
 const CodeBlockPage: React.FC = () => {
+  // Declare states for the code block, editor status, and solution status
   const [codeBlock, setCodeBlock] = useState<CodeBlock | null>(null);
   const [isEditor, setIsEditor] = useState(false);
   const [isSolved, setIsSolved] = useState(false);
+  
+  // Get the code block title from the URL parameters
   const { title: codeBlockTitle } = useParams();
 
+  // Fetch the code block data when the component mounts
   useEffect(() => {
     const fetchCodeBlock = async () => {
       try {
@@ -25,44 +28,47 @@ const CodeBlockPage: React.FC = () => {
     };
 
     fetchCodeBlock();
+    // Emit the join event to the server
     socket.emit("join", codeBlockTitle);
   }, [codeBlockTitle]);
 
-  useEffect(() => {
-    socket.on("codeUpdate", (newCode: string) => {
-      if (codeBlock) {
-        setCodeBlock({ ...codeBlock, code: newCode });
-      }
-    });
+// Set up socket listeners for code updates and editor assignment
+useEffect(() => {
+  socket.on("codeUpdate", (newCode: string) => {
+    if (codeBlock) {
+      setCodeBlock({ ...codeBlock, code: newCode });
+    }
+  });
 
-    socket.on("setEditor", () => {
-      setIsEditor(true);
-    });
+  socket.on("setEditor", () => {
+    setIsEditor(true);
+  });
 
-    return () => {
-      socket.off("codeUpdate");
-      socket.off("setEditor");
-    };
-  }, [codeBlock]);
+  // Clean up socket listeners on component unmount
+  return () => {
+    socket.off("codeUpdate");
+    socket.off("setEditor");
+  };
+}, [codeBlock]);
 
-  const handleCodeChange = (value: string) => {
-      // Update the code block state
+// Handle changes to the code in the CodeMirror editor
+const handleCodeChange = (value: string) => {
+  // Emit the code update event
+  socket.emit("codeUpdate", codeBlockTitle, value);
 
-    if (codeBlock) setCodeBlock({ ...codeBlock, code: value });
-      // Emit the code update event
-
-    socket.emit("codeUpdate", codeBlockTitle, value);
-      // Check if the code matches the solution
-      console.log('value === codeBlock.solution', value === codeBlock!.solution)
+  // Check if the code matches the solution
+  console.log('value === codeBlock.solution', value === codeBlock!.solution)
   if (codeBlock && value === codeBlock.solution) {
     setIsSolved(true);
   } else {
     setIsSolved(false);
   }
-  };
+};
+
 
   return (
     <div className="container">
+      {/* Render the CodeMirror editor and other elements if the code block exists */}
       {codeBlock && (
         <>
           <div className="big-title">{codeBlock.title}</div>
@@ -77,11 +83,12 @@ const CodeBlockPage: React.FC = () => {
               lineNumbers: true,
             }}
           />
-              {isSolved && (
-      <div style={{ fontSize: '48px', textAlign: 'center', marginTop: '16px' }}>
-        😃
-      </div>
-    )}
+          {/* Display a smiley face if the code block is solved */}
+          {isSolved && (
+            <div style={{ fontSize: '5rem', textAlign: 'center', marginTop: '16px' }}>
+              😃
+            </div>
+          )}
         </>
       )}
     </div>
