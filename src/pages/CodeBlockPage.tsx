@@ -57,7 +57,6 @@ const handleCodeChange = (value: string) => {
   socket.emit("codeUpdate", codeBlockTitle, value);
 
   // Check if the code matches the solution
-  console.log('value === codeBlock.solution', value === codeBlock!.solution)
   if (codeBlock && value === codeBlock.solution) {
     setIsSolved(true);
   } else {
@@ -83,6 +82,7 @@ const handleCodeChange = (value: string) => {
               lineNumbers: true,
             }}
           />
+          <button disabled={!isEditor} onClick={() => setCodeBlock({ ...codeBlock, code: codeBlock.solution })}>im stuck</button>
           {/* Display a smiley face if the code block is solved */}
           {isSolved && (
             <div style={{ fontSize: '5rem', textAlign: 'center', marginTop: '16px' }}>
