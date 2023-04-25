@@ -5,7 +5,7 @@ import CodeBlock from './pages/CodeBlockPage';
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: "http://localhost:8000/api/codeblocks",
+  baseURL: "https://move-codeblock-back.onrender.com/api/codeblocks",
 });
 function App() {
   return (
