@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { api } from "../App";
 import socket from "../socket";
 import CodeMirror from "@uiw/react-codemirror";
@@ -67,8 +67,11 @@ const handleCodeChange = (value: string) => {
 
   return (
     <div className="container">
+                 <Link to={`/`} className="back">
+                 &#8592;
+            </Link>
       {/* Render the CodeMirror editor and other elements if the code block exists */}
-      {codeBlock && (
+      {codeBlock? (
         <>
           <div className="big-title">{codeBlock.title}</div>
           <CodeMirror
@@ -82,7 +85,7 @@ const handleCodeChange = (value: string) => {
               lineNumbers: true,
             }}
           />
-          <button disabled={!isEditor} onClick={() => setCodeBlock({ ...codeBlock, code: codeBlock.solution })}>im stuck</button>
+          <button className="unstuck" disabled={!isEditor} onClick={() => {setCodeBlock({ ...codeBlock, code: codeBlock.solution } ); handleCodeChange(codeBlock.solution)}}>im stuck</button>
           {/* Display a smiley face if the code block is solved */}
           {isSolved && (
             <div style={{ fontSize: '5rem', textAlign: 'center', marginTop: '16px' }}>
@@ -90,7 +93,7 @@ const handleCodeChange = (value: string) => {
             </div>
           )}
         </>
-      )}
+      ):<span>Loading...</span>}
     </div>
   );
 };
